@@ -13,9 +13,8 @@ WORKDIR /morph
 COPY --from=0 /morph/out /bin/morph
 
 ENV VERSION="v0.1.0"
+ENV ENV="prod"
 ENV ADDR=":http"
 ENV ENDPOINT_AZURE_COSMOS="https://neko03cosmos.documents.azure.com:443/"
 ENV DATABASE="morph"
-
-EXPOSE 80
 CMD ["morph"]

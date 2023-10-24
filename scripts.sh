@@ -11,6 +11,7 @@ usage() {
 
 dev_env() {
     export ADDR=":12380"
+    export ENV="dev"
     export ENDPOINT_AZURE_COSMOS="https://neko03cosmos.documents.azure.com:443/"
     export DATABASE="neko0001"
 }

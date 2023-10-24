@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
 	"io"
 	"net/http"
 	"os"
@@ -11,29 +12,84 @@ import (
 	"github.com/chiyoi/apricot/neko"
 	"github.com/chiyoi/az"
 	"github.com/chiyoi/az/cosmos"
+	"github.com/chiyoi/morph/cert"
 	"github.com/chiyoi/morph/clients"
 )
 
+var (
+	SkipHost = map[string]bool{
+		"morph.neko03.moe": true,
+		"localhost:12380":  true,
+	}
+)
+
 func main() {
-	srv := &http.Server{
-		Addr:    os.Getenv("ADDR"),
-		Handler: Handler(),
+	m, err := cert.Manager()
+	if err != nil {
+		logs.Panic(err)
 	}
 
-	go neko.StartServer(srv, false)
-	defer neko.StopServer(srv)
+	if os.Getenv("ENV") == "prod" {
+		HTTPSSrv := &http.Server{
+			Addr:      ":https",
+			Handler:   RootHandler(),
+			TLSConfig: &tls.Config{GetCertificate: m.GetCertificate},
+		}
+		HTTPSrv := &http.Server{
+			Addr:    os.Getenv("ADDR"),
+			Handler: m.HTTPHandler(RedirectToHTTPSHandler()),
+		}
+
+		go neko.StartServer(HTTPSrv, false)
+		defer neko.StopServer(HTTPSrv)
+		go neko.StartServer(HTTPSSrv, true)
+		defer neko.StopServer(HTTPSSrv)
+	} else {
+		srv := &http.Server{
+			Addr:    os.Getenv("ADDR"),
+			Handler: RootHandler(),
+		}
+
+		go neko.StartServer(srv, false)
+		defer neko.StopServer(srv)
+	}
 
 	neko.Block()
 }
 
-func Handler() http.Handler {
+func RootHandler() http.Handler {
 	hostMap, err := clients.ContainerClientHostMap()
 	if err != nil {
 		logs.Panic(err)
 	}
+	skipList, err := clients.ContainerClientSkipList()
+	if err != nil {
+		logs.Panic(err)
+	}
+
+	mux := http.NewServeMux()
+	mux.Handle("/ping", neko.PingHandler())
+	mux.Handle("/version", neko.VersionHandler())
+	mux.Handle("/readiness", neko.ReadinessHandler(clients.CheckConnectivity))
+	mux.Handle("/", neko.TeapotHandler())
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		logs.Debug("At :12381.", "r.Host:", r.Host, "r.URL:", r.URL, "r.Header:", r.Header)
+		logs.Info("Inbound received.", "r.Host:", r.Host, "r.URL:", r.URL)
 		ctx, cancel := context.WithTimeout(r.Context(), time.Second*10)
+		defer cancel()
+		exist, err := cosmos.PointKeyExist(ctx, skipList, r.Host)
+		if err != nil {
+			logs.Error(err)
+			neko.InternalServerError(w)
+			return
+		}
+		if exist {
+			logs.Info("Skipped.")
+			mux.ServeHTTP(w, r)
+			return
+		}
+
+		logs.Info("Lookup host.")
+		ctx, cancel = context.WithTimeout(r.Context(), time.Second*10)
 		defer cancel()
 		var e HostMapEntry
 		if err := cosmos.PointRead(ctx, hostMap, r.Host, &e); err != nil {
@@ -60,6 +116,7 @@ func Handler() http.Handler {
 			req.Header[k] = v
 		}
 
+		logs.Info("Request target.", "u:", u)
 		re, err := http.DefaultClient.Do(req)
 		if err != nil {
 			logs.Error(err)
@@ -75,6 +132,15 @@ func Handler() http.Handler {
 		if _, err := io.Copy(w, re.Body); err != nil {
 			logs.Warning(err)
 		}
+	})
+}
+
+func RedirectToHTTPSHandler() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		u := r.URL
+		u.Scheme = "https"
+		u.Host = r.Host
+		neko.TemporaryRedirect(w, r, u.String())
 	})
 }
 
