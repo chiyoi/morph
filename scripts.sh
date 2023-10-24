@@ -21,7 +21,6 @@ usage() {
     echo "    Stop running container, Pull, Build and Up new version."
 }
 
-DOCKER_SCOPE=chiyoi
 ARTIFACT=morph
 
 dev_env() {
@@ -48,11 +47,11 @@ pull() {
 }
 
 build() {
-    sudo docker build -t $DOCKER_SCOPE/$ARTIFACT .
+    sudo docker build -t chiyoi/$ARTIFACT .
 }
 
 up() {
-    sudo docker run -d --network=host --restart=on-failure:5 --name=$ARTIFACT $DOCKER_SCOPE/$ARTIFACT
+    sudo docker run -d --network=host --restart=on-failure:5 --name=$ARTIFACT chiyoi/$ARTIFACT
 }
 
 log() {
