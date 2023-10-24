@@ -7,11 +7,9 @@ usage() {
     echo "    Tidy go module."
     echo "$0 run"
     echo "    Run the main package."
-    echo "$0 pull"
-    echo "    Pull from git origin."
     echo "$0 build"
     echo "    Build docker image."
-    echo "$0 log"
+    echo "$0 logs"
     echo "    Track container log."
     echo "$0 up"
     echo "    Run in docker."
@@ -42,10 +40,6 @@ run() {
     go run .
 }
 
-pull() {
-    git pull
-}
-
 build() {
     sudo docker build -t chiyoi/$ARTIFACT .
 }
@@ -54,7 +48,7 @@ up() {
     sudo docker run -d --network=host --restart=on-failure:5 --name=$ARTIFACT chiyoi/$ARTIFACT
 }
 
-log() {
+logs() {
     sudo docker logs -f $ARTIFACT
 }
 
@@ -73,7 +67,7 @@ exit
 fi
 
 case "$1" in
-tidy|run|pull|build|up|log|stop|update);;
+tidy|run|build|up|logs|stop|update);;
 *)
 usage
 exit 1
