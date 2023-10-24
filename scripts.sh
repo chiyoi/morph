@@ -21,7 +21,11 @@ usage() {
     echo "    Stop running container, Pull, Build and Up new version."
 }
 
+DOCKER_SCOPE=chiyoi
+ARTIFACT=morph
+
 dev_env() {
+    export VERSION="dev"
     export ADDR=":12380"
     export ENV="dev"
     export ENDPOINT_AZURE_COSMOS="https://neko03cosmos.documents.azure.com:443/"
@@ -44,19 +48,19 @@ pull() {
 }
 
 build() {
-    sudo docker build -t chiyoi/morph .
+    sudo docker build -t $DOCKER_SCOPE/$ARTIFACT .
 }
 
 up() {
-    sudo docker run -d --network=host --restart=on-failure:5 --name=morph chiyoi/morph
+    sudo docker run -d --network=host --restart=on-failure:5 --name=$ARTIFACT $DOCKER_SCOPE/$ARTIFACT
 }
 
 log() {
-    sudo docker logs -f morph
+    sudo docker logs -f $ARTIFACT
 }
 
 stop() {
-    sudo docker stop morph && sudo docker rm morph
+    sudo docker stop $ARTIFACT && sudo docker rm $ARTIFACT
 }
 
 update() {
