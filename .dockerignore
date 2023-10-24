@@ -1,0 +1,8 @@
+.vscode
+.DS_Store
+
+.git
+.gitignore
+.dockerignore
+Dockerfile
+scripts.sh
