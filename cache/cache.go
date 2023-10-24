@@ -5,6 +5,7 @@ import (
 	"io"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob/container"
+	"github.com/chiyoi/az"
 	"golang.org/x/crypto/acme/autocert"
 )
 
@@ -20,7 +21,12 @@ func NewBlobCertCache(c *container.Client) *BlobCertCache {
 
 // Delete implements autocert.Cache.
 func (bcc *BlobCertCache) Delete(ctx context.Context, key string) (err error) {
-	_, err = bcc.c.NewBlockBlobClient(key).Delete(ctx, nil)
+	if _, err := bcc.c.NewBlockBlobClient(key).Delete(ctx, nil); err != nil {
+		if az.IsNotFound(err) {
+			return nil
+		}
+		return err
+	}
 	return
 }
 
@@ -28,6 +34,9 @@ func (bcc *BlobCertCache) Delete(ctx context.Context, key string) (err error) {
 func (bcc *BlobCertCache) Get(ctx context.Context, key string) (bs []byte, err error) {
 	re, err := bcc.c.NewBlockBlobClient(key).DownloadStream(ctx, nil)
 	if err != nil {
+		if az.IsNotFound(err) {
+			return nil, autocert.ErrCacheMiss
+		}
 		return
 	}
 	return io.ReadAll(re.Body)
