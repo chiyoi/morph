@@ -36,7 +36,7 @@ func main() {
 			TLSConfig: &tls.Config{GetCertificate: m.GetCertificate},
 		}
 		HTTPSrv := &http.Server{
-			Addr:    os.Getenv("ADDR"),
+			Addr:    ":http",
 			Handler: m.HTTPHandler(RedirectToHTTPSHandler()),
 		}
 

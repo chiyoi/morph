@@ -18,7 +18,7 @@ usage() {
     echo "$0 stop"
     echo "    Stop and clear running container."
     echo "$0 update"
-    echo "    Pull, Build and Up."
+    echo "    Stop running container, Pull, Build and Up new version."
 }
 
 dev_env() {
@@ -58,6 +58,7 @@ stop() {
 }
 
 update() {
+    stop 2>/dev/null
     pull && build && up
 }
 

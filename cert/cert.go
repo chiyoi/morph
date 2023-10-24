@@ -10,6 +10,7 @@ var (
 	HostWhitelist = []string{
 		"aira.neko03.moe",
 		"trinity.neko03.moe",
+		"morph.neko03.moe",
 	}
 )
 
