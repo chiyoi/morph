@@ -16,13 +16,6 @@ import (
 	"github.com/chiyoi/morph/clients"
 )
 
-var (
-	SkipHost = map[string]bool{
-		"morph.neko03.moe": true,
-		"localhost:12380":  true,
-	}
-)
-
 func main() {
 	m, err := cert.Manager()
 	if err != nil {
