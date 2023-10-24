@@ -38,11 +38,11 @@ pull() {
 }
 
 build() {
-    docker build -t chiyoi/morph .
+    sudo docker build -t chiyoi/morph .
 }
 
 up() {
-    docker run -d --network=host --restart=on-failure:5 --name=morph chiyoi/morph
+    sudo docker run -d --network=host --restart=on-failure:5 --name=morph chiyoi/morph
 }
 
 update() {
