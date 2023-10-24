@@ -11,8 +11,12 @@ usage() {
     echo "    Pull from git origin."
     echo "$0 build"
     echo "    Build docker image."
+    echo "$0 log"
+    echo "    Track container log."
     echo "$0 up"
     echo "    Run in docker."
+    echo "$0 stop"
+    echo "    Stop and clear running container."
     echo "$0 update"
     echo "    Pull, Build and Up."
 }
@@ -45,6 +49,14 @@ up() {
     sudo docker run -d --network=host --restart=on-failure:5 --name=morph chiyoi/morph
 }
 
+log() {
+    sudo docker logs -f morph
+}
+
+stop() {
+    sudo docker stop morph && sudo docker rm morph
+}
+
 update() {
     pull && build && up
 }
@@ -55,7 +67,7 @@ exit
 fi
 
 case "$1" in
-tidy|run|pull|build|up|update);;
+tidy|run|pull|build|up|log|stop|update);;
 *)
 usage
 exit 1
