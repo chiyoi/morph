@@ -24,7 +24,7 @@ func Manager() (m *autocert.Manager, err error) {
 		Prompt: autocert.AcceptTOS,
 		Cache:  cache.NewBlobCertCache(c),
 		HostPolicy: func(ctx context.Context, host string) (err error) {
-			ctx, cancel := context.WithTimeout(ctx, time.Second*10)
+			ctx, cancel := context.WithTimeout(ctx, time.Second*20)
 			defer cancel()
 			exist, err := cosmos.PointKeyExist(ctx, hwl, host)
 			if err != nil {

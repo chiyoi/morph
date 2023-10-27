@@ -12,7 +12,7 @@ FROM alpine:3.18
 WORKDIR /morph
 COPY --from=0 /morph/out /bin/morph
 
-ENV VERSION="Morph v0.2.0"
+ENV VERSION="Morph v0.2.1"
 ENV ENV="prod"
 ENV ADDR=":http"
 ENV ENDPOINT_AZURE_COSMOS="https://neko03cosmos.documents.azure.com:443/"
