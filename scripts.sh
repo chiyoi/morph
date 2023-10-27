@@ -57,8 +57,9 @@ stop() {
 }
 
 update() {
+    git pull && build || return
     stop 2>/dev/null
-    pull && build && up
+    up
 }
 
 if test -z "$1" -o -n "$(echo "$1" | grep -Ex '\-{0,2}h(elp)?')"; then
