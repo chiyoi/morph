@@ -13,10 +13,11 @@ import (
 )
 
 var (
-	EndpointAzureCosmos = os.Getenv("ENDPOINT_AZURE_COSMOS")
-	Database            = os.Getenv("DATABASE")
-	ContainerHostMap    = "host_map"
-	ContainerSkipList   = "skip_list"
+	EndpointAzureCosmos    = os.Getenv("ENDPOINT_AZURE_COSMOS")
+	Database               = os.Getenv("DATABASE")
+	ContainerHostMap       = "host_map"
+	ContainerSkipList      = "skip_list"
+	ContainerHostWhitelist = "host_whitelist"
 
 	EndpointAzureBlob      = os.Getenv("ENDPOINT_AZURE_BLOB")
 	BlobContainerCertCache = os.Getenv("BLOB_CONTAINER_CERT_CACHE")
@@ -65,6 +66,14 @@ func ContainerClientSkipList() (c *azcosmos.ContainerClient, err error) {
 		return
 	}
 	return client.NewContainer(ContainerSkipList)
+}
+
+func ContainerClientHostWhitelist() (c *azcosmos.ContainerClient, err error) {
+	client, err := databaseClient()
+	if err != nil {
+		return
+	}
+	return client.NewContainer(ContainerHostWhitelist)
 }
 
 func BlobContainerClientCertCache() (c *container.Client, err error) {

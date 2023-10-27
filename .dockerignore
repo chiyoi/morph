@@ -3,5 +3,6 @@
 
 .git
 .gitignore
+.dockerignore
 Dockerfile
 scripts.sh
