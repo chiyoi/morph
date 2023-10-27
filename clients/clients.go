@@ -13,14 +13,9 @@ import (
 )
 
 var (
-	EndpointAzureCosmos    = os.Getenv("ENDPOINT_AZURE_COSMOS")
-	Database               = os.Getenv("DATABASE")
 	ContainerHostMap       = "host_map"
 	ContainerSkipList      = "skip_list"
 	ContainerHostWhitelist = "host_whitelist"
-
-	EndpointAzureBlob      = os.Getenv("ENDPOINT_AZURE_BLOB")
-	BlobContainerCertCache = os.Getenv("BLOB_CONTAINER_CERT_CACHE")
 )
 
 func CheckConnectivity() (ok bool) {
@@ -77,11 +72,19 @@ func ContainerClientHostWhitelist() (c *azcosmos.ContainerClient, err error) {
 }
 
 func BlobContainerClientCertCache() (c *container.Client, err error) {
+	var (
+		BlobContainerCertCache = os.Getenv("BLOB_CONTAINER_CERT_CACHE")
+	)
 	client, err := blobClient()
 	return client.ServiceClient().NewContainerClient(BlobContainerCertCache), err
 }
 
 func databaseClient() (c *azcosmos.DatabaseClient, err error) {
+	var (
+		EndpointAzureCosmos = os.Getenv("ENDPOINT_AZURE_COSMOS")
+		Database            = os.Getenv("DATABASE")
+	)
+
 	cred, err := identity.DefaultCredential()
 	if err != nil {
 		return
@@ -95,6 +98,10 @@ func databaseClient() (c *azcosmos.DatabaseClient, err error) {
 }
 
 func blobClient() (c *azblob.Client, err error) {
+	var (
+		EndpointAzureBlob = os.Getenv("ENDPOINT_AZURE_BLOB")
+	)
+
 	cred, err := identity.DefaultCredential()
 	if err != nil {
 		return
