@@ -1,79 +1,74 @@
-#!/bin/sh
-cd $(dirname $(realpath $0)) || return
-usage() {
+#!/bin/zsh
+scripts=$0
+cd $(dirname $(realpath $scripts)) || return
+usage () {
     pwd
     echo "Scripts:"
-    echo "$0 tidy"
+    echo "$scripts help"
+    echo "    Show this help message."
+    echo "$scripts tidy"
     echo "    Tidy go module."
-    echo "$0 run"
+    echo "$scripts run"
     echo "    Run the main package."
-    echo "$0 build"
+    echo "$scripts build"
     echo "    Build docker image."
-    echo "$0 logs"
+    echo "$scripts logs"
     echo "    Track container log."
-    echo "$0 up"
+    echo "$scripts up"
     echo "    Run in docker."
-    echo "$0 stop"
+    echo "$scripts stop"
     echo "    Stop and clear running container."
-    echo "$0 update"
+    echo "$scripts update"
     echo "    Stop running container, Pull, Build and Up new version."
 }
 
+export ENV="dev"
 ARTIFACT=morph
 
-dev_env() {
-    export VERSION="dev"
-    export ADDR=":12380"
-    export ENV="dev"
-    export ENDPOINT_AZURE_COSMOS="https://neko03cosmos.documents.azure.com:443/"
-    export ENDPOINT_AZURE_BLOB="https://neko03storage.blob.core.windows.net/"
-    export BLOB_CONTAINER_CERT_CACHE="neko0001"
-    export DATABASE="neko0001"
+help () {
+    usage
 }
 
-tidy() {
+tidy () {
     go mod tidy
 }
 
-run() {
-    dev_env
+run () {
     go run .
 }
 
-build() {
+build () {
     sudo docker build -t chiyoi/$ARTIFACT .
 }
 
-up() {
+up () {
     sudo docker run -d --network=host --restart=on-failure:5 --name=$ARTIFACT chiyoi/$ARTIFACT
 }
 
-logs() {
+logs () {
     sudo docker logs -f $ARTIFACT
 }
 
-stop() {
+stop () {
     sudo docker stop $ARTIFACT && sudo docker rm $ARTIFACT
 }
 
-update() {
+update () {
     git pull && build || return
     stop 2>/dev/null
     up
 }
 
-if test -z "$1" -o -n "$(echo "$1" | grep -Ex '\-{0,2}h(elp)?')"; then
+case "$1" in
+""|-h|-help|--help)
 usage
 exit
-fi
-
-case "$1" in
-tidy|run|build|up|logs|stop|update);;
+;;
+help|tidy|run|build|up|logs|stop|update)
+$@
+;;
 *)
 usage
 exit 1
 ;;
 esac
-
-$@
-
