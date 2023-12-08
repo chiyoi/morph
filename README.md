@@ -1,2 +1,3 @@
-# morph
-Proxy server for *.neko03.moe.
+# Morph
+Proxy for cloudflare data containers.
+- Authorization: TOTP (Time-based One-Time Password), fixed secret.

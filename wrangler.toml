@@ -1,0 +1,18 @@
+name = "morph"
+main = "index.ts"
+compatibility_date = "2023-11-21"
+
+[vars]
+VERSION = "Morph v0.4.0"
+
+[[kv_namespaces]]
+binding = "table"
+id = "37b6f09786ff4a99a15ce03dc82e26df"
+
+[[r2_buckets]]
+binding = "files"
+bucket_name = "files"
+
+[[r2_buckets]]
+binding = "assets"
+bucket_name = "assets"
